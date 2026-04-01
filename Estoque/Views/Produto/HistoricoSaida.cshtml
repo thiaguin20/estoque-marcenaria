@@ -1,0 +1,72 @@
+﻿@model IEnumerable<Estoque.Models.Movimentacao>
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Histórico de Saídas</title>
+
+    
+    <style>
+        body {
+            background: #0d0d0d;
+            color: white;
+            font-family: Arial;
+            padding: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #141414;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #222;
+            text-align: center;
+        }
+
+        th {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .red {
+            color: #f87171;
+            font-weight: bold;
+        }
+    </style>
+    
+
+</head>
+<body>
+
+    <h2>📤 Histórico de Saídas</h2>
+
+    <table>
+        <tr>
+            <th>Produto</th>
+            <th>Quantidade</th>
+            <th>Data</th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.NomeProduto</td>
+                <td class="red">-@item.Quantidade</td>
+                <td>@item.Data</td>
+            </tr>
+        }
+        
+
+    </table>
+
+</body>
+</html>

@@ -1,0 +1,575 @@
+﻿@model Estoque.Models.Produto
+
+@{
+    bool isEdit = Model != null && Model.Id > 0;
+    ViewBag.Title = isEdit ? "Editar Produto" : "Novo Produto";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewBag.Title — Marcenaria</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0d0d0d;
+            --bg2: #141414;
+            --bg3: #1c1c1c;
+            --bg4: #242424;
+            --line: rgba(255,255,255,.07);
+            --line2: rgba(255,255,255,.12);
+            --txt: #f0ede8;
+            --txt2: #9a9690;
+            --txt3: #5c5a57;
+            --gold: #c9a84c;
+            --gold-lt: rgba(201,168,76,.12);
+            --red: #f87171;
+            --red-lt: rgba(248,113,113,.1);
+            --green: #4ade80;
+            --r: 10px;
+            --r-lg: 16px;
+        }
+
+        html, body {
+            background: var(--bg);
+            color: var(--txt);
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .shell {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            background: var(--bg2);
+            border-right: 1px solid var(--line);
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-icon {
+            width: 34px;
+            height: 34px;
+            background: var(--gold);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0d0d0d;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .brand-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--txt);
+        }
+
+        .brand-sub {
+            font-size: 10px;
+            color: var(--txt3);
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--txt3);
+            padding: 0 8px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--txt2);
+            text-decoration: none;
+            transition: background .15s, color .15s;
+        }
+
+            .nav-item:hover {
+                background: var(--bg3);
+                color: var(--txt);
+            }
+
+            .nav-item.active {
+                background: var(--gold-lt);
+                color: var(--gold);
+                border: 1px solid rgba(201,168,76,.2);
+            }
+
+            .nav-item i {
+                font-size: 15px;
+                width: 18px;
+                text-align: center;
+            }
+
+        .sidebar-foot {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--line);
+        }
+
+        /* MAIN */
+        .main {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--line);
+            background: var(--bg);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .topbar-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--txt2);
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            height: 36px;
+            padding: 0 14px;
+            background: var(--bg3);
+            border: 1px solid var(--line2);
+            border-radius: 9px;
+            color: var(--txt2);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            text-decoration: none;
+            transition: color .15s;
+        }
+
+            .btn-back:hover {
+                color: var(--txt);
+            }
+
+        .content {
+            padding: 32px;
+            flex: 1;
+        }
+
+        /* HERO */
+        .hero {
+            margin-bottom: 32px;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+
+            .hero-eyebrow::before {
+                content: '';
+                display: block;
+                width: 18px;
+                height: 2px;
+                background: var(--gold);
+                border-radius: 2px;
+            }
+
+        .hero h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--txt);
+            line-height: 1.1;
+            letter-spacing: -.02em;
+        }
+
+            .hero h1 span {
+                color: var(--gold);
+            }
+
+        /* FORM CARD */
+        .form-card {
+            background: var(--bg2);
+            border: 1px solid var(--line);
+            border-radius: var(--r-lg);
+            overflow: hidden;
+            max-width: 860px;
+        }
+
+        .form-card-head {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--line);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--txt);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .form-card-head i {
+                color: var(--gold);
+                font-size: 15px;
+            }
+
+        .form-body {
+            padding: 28px 24px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        /* Field */
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+            .field label {
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: .08em;
+                color: var(--txt3);
+            }
+
+            .field input[type=text],
+            .field input[type=number],
+            .field input[type=file] {
+                width: 100%;
+                height: 42px;
+                background: var(--bg3);
+                border: 1px solid var(--line2);
+                border-radius: var(--r);
+                padding: 0 14px;
+                color: var(--txt);
+                font-family: 'Inter', sans-serif;
+                font-size: 14px;
+                outline: none;
+                transition: border-color .15s, box-shadow .15s;
+            }
+
+            .field input[type=file] {
+                padding: 10px 14px;
+                height: auto;
+                cursor: pointer;
+                color: var(--txt2);
+            }
+
+            .field input:focus {
+                border-color: var(--gold);
+                box-shadow: 0 0 0 3px rgba(201,168,76,.12);
+            }
+
+            .field input::placeholder {
+                color: var(--txt3);
+            }
+
+            .field .val-error {
+                font-size: 12px;
+                color: var(--red);
+                margin-top: 2px;
+            }
+
+        /* Image preview box */
+        .img-box {
+            background: var(--bg3);
+            border: 1px dashed var(--line2);
+            border-radius: var(--r);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+            .img-box img {
+                width: 110px;
+                height: 110px;
+                object-fit: cover;
+                border-radius: 10px;
+                border: 1px solid var(--line2);
+            }
+
+            .img-box .img-lbl {
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: .08em;
+                color: var(--txt3);
+                margin-bottom: 4px;
+            }
+
+        .img-hint {
+            font-size: 12px;
+            color: var(--txt3);
+            text-align: center;
+        }
+
+        /* Divider */
+        .form-divider {
+            border: none;
+            border-top: 1px solid var(--line);
+            margin: 24px 0;
+        }
+
+        /* Form actions */
+        .form-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-cancel {
+            height: 40px;
+            padding: 0 20px;
+            background: var(--bg3);
+            border: 1px solid var(--line2);
+            border-radius: 9px;
+            color: var(--txt2);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: color .15s;
+        }
+
+            .btn-cancel:hover {
+                color: var(--txt);
+            }
+
+        .btn-submit {
+            height: 40px;
+            padding: 0 24px;
+            background: var(--gold);
+            border: none;
+            border-radius: 9px;
+            color: #0d0d0d;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: opacity .15s, transform .1s;
+        }
+
+            .btn-submit:hover {
+                opacity: .88;
+                transform: translateY(-1px);
+            }
+
+        @@media (max-width: 900px) {
+            .shell {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .content {
+                padding: 20px 16px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="shell">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon"><i class="bi bi-tools"></i></div>
+                <div>
+                    <div class="brand-name">Marcenaria</div>
+                    <div class="brand-sub">Sistema de Gestão</div>
+                </div>
+            </div>
+
+            <nav style="display:flex; flex-direction:column; gap:4px;">
+                <div class="nav-label">Principal</div>
+                <a href="@Url.Action("Index", "Produto")" class="nav-item">
+                    <i class="bi bi-boxes"></i> Estoque
+                </a>
+                <a href="@Url.Action("Create", "Produto")" class="nav-item active">
+                    <i class="bi bi-plus-circle"></i> Novo Produto
+                </a>
+            </nav>
+
+            <div class="sidebar-foot">
+                <a href="#" class="nav-item" style="font-size:12px;">
+                    <i class="bi bi-gear"></i> Configurações
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <div class="main">
+
+            <!-- TOPBAR -->
+            <div class="topbar">
+                <span class="topbar-title">
+                    @(isEdit ? "Editando produto" : "Cadastro de produto")
+                </span>
+                <a href="@Url.Action("Index", "Produto")" class="btn-back">
+                    <i class="bi bi-arrow-left"></i> Voltar ao estoque
+                </a>
+            </div>
+
+            <!-- CONTENT -->
+            <div class="content">
+
+                <div class="hero">
+                    <div class="hero-eyebrow">@(isEdit ? "Editar" : "Novo Produto")</div>
+                    <h1>@(isEdit ? "Atualizar <span>Produto</span>" : "Cadastrar <span>Produto</span>")</h1>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-card-head">
+                        <i class="bi bi-@(isEdit ? "pencil" : "plus-circle")"></i>
+                        @(isEdit ? "Informações do produto" : "Preencha os dados do novo produto")
+                    </div>
+
+                    <div class="form-body">
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            <div class="form-grid">
+
+                                <!-- COLUNA ESQUERDA -->
+                                <div style="display:flex; flex-direction:column; gap:18px;">
+
+                                    <div class="field">
+                                        <label>Nome do Produto</label>
+                                        @Html.TextBoxFor(m => m.Nome, new { placeholder = "Ex: Porta de Madeira" })
+                                        @Html.ValidationMessageFor(m => m.Nome, "", new { @class = "val-error" })
+                                    </div>
+
+                                    <div class="field">
+                                        <label>Preço (R$)</label>
+                                        @Html.TextBoxFor(m => m.Preco, new { placeholder = "Ex: 150.00" })
+                                        @Html.ValidationMessageFor(m => m.Preco, "", new { @class = "val-error" })
+                                    </div>
+
+                                    <div class="field">
+                                        <label>Quantidade em Estoque</label>
+                                        @Html.TextBoxFor(m => m.Quantidade, new { type = "number", min = "0" })
+                                        @Html.ValidationMessageFor(m => m.Quantidade, "", new { @class = "val-error" })
+                                    </div>
+
+                                </div>
+
+                                <!-- COLUNA DIREITA -->
+                                <div>
+                                    <div class="field" style="margin-bottom:10px;">
+                                        <label>Imagem do Produto</label>
+                                    </div>
+                                    <div class="img-box">
+                                        @if (isEdit && !string.IsNullOrEmpty(Model.ImagemUrl))
+                                        {
+                                            <div style="text-align:center;">
+                                                <div class="img-lbl">Imagem atual</div>
+                                                <img src="@Url.Content(Model.ImagemUrl)" alt="Imagem atual" />
+                                            </div>
+                                        }
+                                        <div class="field" style="width:100%;">
+                                            <input type="file" name="fotoUpload" />
+                                        </div>
+                                        <p class="img-hint">
+                                            @(isEdit ? "Envie uma nova imagem para substituir a atual." : "Adicione uma imagem do produto.")
+                                        </p>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <hr class="form-divider" />
+
+                            <div class="form-actions">
+                                <a href="@Url.Action("Index", "Produto")" class="btn-cancel">Cancelar</a>
+                                <button type="submit" class="btn-submit">
+                                    <i class="bi bi-@(isEdit ? "check-lg" : "floppy")"></i>
+                                    @(isEdit ? "Atualizar Produto" : "Salvar Produto")
+                                </button>
+                            </div>
+                        }
+
+                        @if (isEdit)
+                        {
+                            @Html.HiddenFor(m => m.Id)
+                            @Html.HiddenFor(m => m.ImagemUrl)
+                        }
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

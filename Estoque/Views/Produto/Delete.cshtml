@@ -1,0 +1,580 @@
+﻿@model Estoque.Models.Produto
+
+@{
+    ViewBag.Title = "Excluir Produto";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Excluir Produto — Marcenaria</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0d0d0d;
+            --bg2: #141414;
+            --bg3: #1c1c1c;
+            --bg4: #242424;
+            --line: rgba(255,255,255,.07);
+            --line2: rgba(255,255,255,.12);
+            --txt: #f0ede8;
+            --txt2: #9a9690;
+            --txt3: #5c5a57;
+            --gold: #c9a84c;
+            --gold-lt: rgba(201,168,76,.12);
+            --red: #f87171;
+            --red-lt: rgba(248,113,113,.1);
+            --red-bd: rgba(248,113,113,.25);
+            --r: 10px;
+            --r-lg: 16px;
+        }
+
+        html, body {
+            background: var(--bg);
+            color: var(--txt);
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .shell {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            background: var(--bg2);
+            border-right: 1px solid var(--line);
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-icon {
+            width: 34px;
+            height: 34px;
+            background: var(--gold);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0d0d0d;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .brand-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--txt);
+        }
+
+        .brand-sub {
+            font-size: 10px;
+            color: var(--txt3);
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--txt3);
+            padding: 0 8px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--txt2);
+            text-decoration: none;
+            transition: background .15s, color .15s;
+        }
+
+            .nav-item:hover {
+                background: var(--bg3);
+                color: var(--txt);
+            }
+
+            .nav-item.active {
+                background: var(--gold-lt);
+                color: var(--gold);
+                border: 1px solid rgba(201,168,76,.2);
+            }
+
+            .nav-item i {
+                font-size: 15px;
+                width: 18px;
+                text-align: center;
+            }
+
+        .sidebar-foot {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--line);
+        }
+
+        /* MAIN */
+        .main {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--line);
+            background: var(--bg);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .topbar-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--txt2);
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            height: 36px;
+            padding: 0 14px;
+            background: var(--bg3);
+            border: 1px solid var(--line2);
+            border-radius: 9px;
+            color: var(--txt2);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            text-decoration: none;
+            transition: color .15s;
+        }
+
+            .btn-back:hover {
+                color: var(--txt);
+            }
+
+        .content {
+            padding: 32px;
+            flex: 1;
+        }
+
+        /* HERO */
+        .hero {
+            margin-bottom: 28px;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--red);
+            margin-bottom: 8px;
+        }
+
+            .hero-eyebrow::before {
+                content: '';
+                display: block;
+                width: 18px;
+                height: 2px;
+                background: var(--red);
+                border-radius: 2px;
+            }
+
+        .hero h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--txt);
+            line-height: 1.1;
+            letter-spacing: -.02em;
+        }
+
+            .hero h1 span {
+                color: var(--red);
+            }
+
+        /* ALERT BANNER */
+        .alert-banner {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: var(--red-lt);
+            border: 1px solid var(--red-bd);
+            border-radius: var(--r);
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            max-width: 740px;
+        }
+
+            .alert-banner i {
+                color: var(--red);
+                font-size: 18px;
+                flex-shrink: 0;
+                margin-top: 1px;
+            }
+
+            .alert-banner strong {
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--red);
+                display: block;
+                margin-bottom: 2px;
+            }
+
+            .alert-banner p {
+                font-size: 13px;
+                color: var(--txt2);
+                margin: 0;
+            }
+
+        /* PRODUCT CARD */
+        .prod-card {
+            background: var(--bg2);
+            border: 1px solid var(--line);
+            border-radius: var(--r-lg);
+            overflow: hidden;
+            max-width: 740px;
+        }
+
+        .prod-card-head {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--line);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--txt);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .prod-card-head i {
+                color: var(--red);
+                font-size: 15px;
+            }
+
+        .prod-card-body {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 0;
+        }
+
+        /* Image panel */
+        .prod-img-panel {
+            padding: 28px 24px;
+            border-right: 1px solid var(--line);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+            .prod-img-panel img {
+                width: 120px;
+                height: 120px;
+                object-fit: cover;
+                border-radius: 12px;
+                border: 1px solid var(--line2);
+            }
+
+        .no-img {
+            width: 120px;
+            height: 120px;
+            background: var(--bg3);
+            border-radius: 12px;
+            border: 1px dashed var(--line2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--txt3);
+            font-size: 28px;
+        }
+
+        /* Info panel */
+        .prod-info-panel {
+            padding: 28px 24px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+            .info-row:last-child {
+                border-bottom: none;
+            }
+
+        .info-key {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--txt3);
+            width: 90px;
+            flex-shrink: 0;
+        }
+
+        .info-val {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--txt);
+        }
+
+        .id-chip {
+            display: inline-block;
+            background: var(--bg4);
+            color: var(--txt3);
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+            padding: 2px 8px;
+            border: 1px solid var(--line);
+        }
+
+        /* ACTIONS */
+        .prod-actions {
+            padding: 18px 24px;
+            border-top: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-cancel {
+            height: 40px;
+            padding: 0 20px;
+            background: var(--bg3);
+            border: 1px solid var(--line2);
+            border-radius: 9px;
+            color: var(--txt2);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: color .15s;
+        }
+
+            .btn-cancel:hover {
+                color: var(--txt);
+            }
+
+        .btn-confirm-del {
+            height: 40px;
+            padding: 0 20px;
+            background: var(--red-lt);
+            border: 1px solid var(--red-bd);
+            border-radius: 9px;
+            color: var(--red);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: background .15s, transform .1s;
+        }
+
+            .btn-confirm-del:hover {
+                background: rgba(248,113,113,.18);
+                transform: translateY(-1px);
+            }
+
+        @@media (max-width: 900px) {
+            .shell {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .content {
+                padding: 20px 16px;
+            }
+
+            .prod-card-body {
+                grid-template-columns: 1fr;
+            }
+
+            .prod-img-panel {
+                border-right: none;
+                border-bottom: 1px solid var(--line);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="shell">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon"><i class="bi bi-tools"></i></div>
+                <div>
+                    <div class="brand-name">Marcenaria</div>
+                    <div class="brand-sub">Sistema de Gestão</div>
+                </div>
+            </div>
+
+            <nav style="display:flex; flex-direction:column; gap:4px;">
+                <div class="nav-label">Principal</div>
+                <a href="@Url.Action("Index", "Produto")" class="nav-item active">
+                    <i class="bi bi-boxes"></i> Estoque
+                </a>
+                <a href="@Url.Action("Create", "Produto")" class="nav-item">
+                    <i class="bi bi-plus-circle"></i> Novo Produto
+                </a>
+            </nav>
+
+            <div class="sidebar-foot">
+                <a href="#" class="nav-item" style="font-size:12px;">
+                    <i class="bi bi-gear"></i> Configurações
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <div class="main">
+
+            <!-- TOPBAR -->
+            <div class="topbar">
+                <span class="topbar-title">Confirmar exclusão</span>
+                <a href="@Url.Action("Index", "Produto")" class="btn-back">
+                    <i class="bi bi-arrow-left"></i> Voltar ao estoque
+                </a>
+            </div>
+
+            <!-- CONTENT -->
+            <div class="content">
+
+                <div class="hero">
+                    <div class="hero-eyebrow">Exclusão de Produto</div>
+                    <h1>Remover <span>Produto</span></h1>
+                </div>
+
+                <div class="alert-banner">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <div>
+                        <strong>Atenção — ação irreversível</strong>
+                        <p>Essa ação não pode ser desfeita. O produto será removido permanentemente do sistema.</p>
+                    </div>
+                </div>
+
+                <div class="prod-card">
+                    <div class="prod-card-head">
+                        <i class="bi bi-trash3"></i>
+                        Produto a ser excluído
+                    </div>
+
+                    <div class="prod-card-body">
+
+                        <!-- IMAGE -->
+                        <div class="prod-img-panel">
+                            @if (!string.IsNullOrEmpty(Model.ImagemUrl))
+                            {
+                                <img src="@Url.Content(Model.ImagemUrl)" alt="@Model.Nome" />
+                            }
+                            else
+                            {
+                                <div class="no-img"><i class="bi bi-image"></i></div>
+                            }
+                        </div>
+
+                        <!-- INFO -->
+                        <div class="prod-info-panel">
+                            <div class="info-row">
+                                <span class="info-key">ID</span>
+                                <span class="info-val"><span class="id-chip">#@Model.Id</span></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-key">Nome</span>
+                                <span class="info-val">@Model.Nome</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-key">Preço</span>
+                                <span class="info-val">R$ @Model.Preco.ToString("N2")</span>
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.Descricao))
+                            {
+                                <div class="info-row">
+                                    <span class="info-key">Descrição</span>
+                                    <span class="info-val" style="color:var(--txt2);">@Model.Descricao</span>
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+
+                    <div class="prod-actions">
+                        <a href="@Url.Action("Index", "Produto")" class="btn-cancel">
+                            <i class="bi bi-x-lg"></i> Cancelar
+                        </a>
+                        @using (Html.BeginForm())
+                        {
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn-confirm-del">
+                                <i class="bi bi-trash3-fill"></i> Confirmar Exclusão
+                            </button>
+                        }
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
