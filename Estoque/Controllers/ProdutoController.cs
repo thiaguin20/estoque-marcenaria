@@ -1,5 +1,6 @@
 ﻿using Estoque.Models;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -11,43 +12,61 @@ namespace Estoque.Controllers
 
         public ActionResult Index(string busca, string filtro)
         {
-            if (Session["UsuarioLogado"] == null)
-                return RedirectToAction("Login", "Admin");
-
-            var produtos = db.Produtos.AsQueryable();
-
-            if (!string.IsNullOrEmpty(busca))
+            try
             {
-                produtos = produtos.Where(p => p.Nome.Contains(busca));
-            }
+                if (Session["UsuarioLogado"] == null)
+                    return RedirectToAction("Login", "Admin");
 
-            // 🎯 FILTROS
-            if (filtro == "baixo")
-            {
-                produtos = produtos.Where(p => p.Quantidade < 50);
-            }
-            else if (filtro == "medio")
-            {
-                produtos = produtos.Where(p => p.Quantidade >= 50 && p.Quantidade <= 100);
-            }
-            else if (filtro == "alto")
-            {
-                produtos = produtos.Where(p => p.Quantidade > 100);
-            }
+                var produtos = db.Produtos.AsQueryable();
 
-            return View(produtos.ToList());
+                if (!string.IsNullOrEmpty(busca))
+                {
+                    produtos = produtos.Where(p => p.Nome.Contains(busca));
+                }
+
+                // 🎯 FILTROS
+                if (filtro == "baixo")
+                {
+                    produtos = produtos.Where(p => p.Quantidade < 50);
+                }
+                else if (filtro == "medio")
+                {
+                    produtos = produtos.Where(p => p.Quantidade >= 50 && p.Quantidade <= 100);
+                }
+                else if (filtro == "alto")
+                {
+                    produtos = produtos.Where(p => p.Quantidade > 100);
+                }
+
+                return View(produtos.ToList());
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Index error: " + ex);
+                TempData["Error"] = "Ocorreu um erro ao carregar os produtos.";
+                return View(Enumerable.Empty<Produto>());
+            }
         }
         // ===============================
         // GET: /Produto/Create
         // ===============================
         public ActionResult Create()
         {
-            if (Session["UsuarioLogado"] == null)
+            try
             {
-                return RedirectToAction("Login", "Admin");
-            }
+                if (Session["UsuarioLogado"] == null)
+                {
+                    return RedirectToAction("Login", "Admin");
+                }
 
-            return View();
+                return View();
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Create(GET) error: " + ex);
+                TempData["Error"] = "Ocorreu um erro ao abrir o cadastro de produto.";
+                return RedirectToAction("Index");
+            }
         }
 
         // ===============================
@@ -62,34 +81,43 @@ namespace Estoque.Controllers
                 return RedirectToAction("Login", "Admin");
             }
 
-            if (ModelState.IsValid)
+                try
             {
-                // 📸 Upload da imagem
-                if (fotoUpload != null && fotoUpload.ContentLength > 0)
+                if (ModelState.IsValid)
                 {
-                    string nomeArquivo = System.IO.Path.GetFileName(fotoUpload.FileName);
+                    // 📸 Upload da imagem
+                    if (fotoUpload != null && fotoUpload.ContentLength > 0)
+                    {
+                        string nomeArquivo = System.IO.Path.GetFileName(fotoUpload.FileName);
 
-                    string caminho = System.IO.Path.Combine(
-                        Server.MapPath("~/Content/images"),
-                        nomeArquivo
-                    );
+                        string caminho = System.IO.Path.Combine(
+                            Server.MapPath("~/Content/images"),
+                            nomeArquivo
+                        );
 
-                    fotoUpload.SaveAs(caminho);
+                        fotoUpload.SaveAs(caminho);
 
-                    produto.ImagemUrl = "~/Content/images/" + nomeArquivo;
+                        produto.ImagemUrl = "~/Content/images/" + nomeArquivo;
+                    }
+                    else
+                    {
+                        produto.ImagemUrl = "~/Content/images/default.jfif";
+                    }
+
+                    db.Produtos.Add(produto);
+                    db.SaveChanges();
+
+                    return RedirectToAction("Index");
                 }
-                else
-                {
-                    produto.ImagemUrl = "~/Content/images/default.jfif";
-                }
 
-                db.Produtos.Add(produto);
-                db.SaveChanges();
-
-                return RedirectToAction("Index");
+                return View(produto);
             }
-
-            return View(produto);
+            catch (Exception ex)
+            {
+                Trace.TraceError("Create error: " + ex);
+                ModelState.AddModelError("", "Ocorreu um erro ao salvar o produto. Tente novamente.");
+                return View(produto);
+            }
         }
 
         // ===============================
@@ -97,19 +125,28 @@ namespace Estoque.Controllers
         // ===============================
         public ActionResult Edit(int? id)
         {
-            if (Session["UsuarioLogado"] == null)
-                return RedirectToAction("Login", "Admin");
+            try
+            {
+                if (Session["UsuarioLogado"] == null)
+                    return RedirectToAction("Login", "Admin");
 
-            if (id == null)
-                return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest);
+                if (id == null)
+                    return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest);
 
-            Produto produto = db.Produtos.Find(id);
+                Produto produto = db.Produtos.Find(id);
 
-            if (produto == null)
-                return HttpNotFound();
+                if (produto == null)
+                    return HttpNotFound();
 
-            // 👇 PULO DO GATO (usa a mesma view do Create)
-            return View("Create", produto);
+                // Agora usa a view Edit separada
+                return View(produto);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Edit(GET) error: " + ex);
+                TempData["Error"] = "Ocorreu um erro ao abrir o produto para edição.";
+                return RedirectToAction("Index");
+            }
         }
 
         // ===============================
@@ -122,38 +159,54 @@ namespace Estoque.Controllers
             if (Session["UsuarioLogado"] == null)
                 return RedirectToAction("Login", "Admin");
 
-            ModelState.Remove("ImagemUrl");
-
-            if (ModelState.IsValid)
+            try
             {
-                var produtoOriginal = db.Produtos.Find(produto.Id);
+                ModelState.Remove("ImagemUrl");
 
-                // Atualiza dados
-                produtoOriginal.Nome = produto.Nome;
-                produtoOriginal.Preco = produto.Preco;
-                produtoOriginal.Descricao = produto.Descricao;
-
-                // 📸 Nova imagem (se enviou)
-                if (fotoUpload != null && fotoUpload.ContentLength > 0)
+                if (ModelState.IsValid)
                 {
-                    string nomeArquivo = System.IO.Path.GetFileName(fotoUpload.FileName);
+                    var produtoOriginal = db.Produtos.Find(produto.Id);
 
-                    string caminho = System.IO.Path.Combine(
-                        Server.MapPath("~/Content/images"),
-                        nomeArquivo
-                    );
+                    if (produtoOriginal == null)
+                    {
+                        ModelState.AddModelError("", "Produto não encontrado.");
+                        return View(produto);
+                    }
 
-                    fotoUpload.SaveAs(caminho);
+                    // Atualiza dados
+                    produtoOriginal.Nome = produto.Nome;
+                    produtoOriginal.Preco = produto.Preco;
+                    produtoOriginal.Descricao = produto.Descricao;
+                    produtoOriginal.Quantidade = produto.Quantidade;
 
-                    produtoOriginal.ImagemUrl = "~/Content/images/" + nomeArquivo;
+                    // 📸 Nova imagem (se enviou)
+                    if (fotoUpload != null && fotoUpload.ContentLength > 0)
+                    {
+                        string nomeArquivo = System.IO.Path.GetFileName(fotoUpload.FileName);
+
+                        string caminho = System.IO.Path.Combine(
+                            Server.MapPath("~/Content/images"),
+                            nomeArquivo
+                        );
+
+                        fotoUpload.SaveAs(caminho);
+
+                        produtoOriginal.ImagemUrl = "~/Content/images/" + nomeArquivo;
+                    }
+
+                    db.SaveChanges();
+
+                    return RedirectToAction("Index");
                 }
 
-                db.SaveChanges();
-
-                return RedirectToAction("Index");
+                return View(produto);
             }
-
-            return View("Create", produto);
+            catch (Exception ex)
+            {
+                Trace.TraceError("Edit(POST) error: " + ex);
+                ModelState.AddModelError("", "Ocorreu um erro ao atualizar o produto. Tente novamente.");
+                return View(produto);
+            }
         }
 
         // ===============================
@@ -161,18 +214,27 @@ namespace Estoque.Controllers
         // ===============================
         public ActionResult Delete(int? id)
         {
-            if (Session["UsuarioLogado"] == null)
-                return RedirectToAction("Login", "Admin");
+            try
+            {
+                if (Session["UsuarioLogado"] == null)
+                    return RedirectToAction("Login", "Admin");
 
-            if (id == null)
-                return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest);
+                if (id == null)
+                    return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest);
 
-            Produto produto = db.Produtos.Find(id);
+                Produto produto = db.Produtos.Find(id);
 
-            if (produto == null)
-                return HttpNotFound();
+                if (produto == null)
+                    return HttpNotFound();
 
-            return View(produto);
+                return View(produto);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Delete(GET) error: " + ex);
+                TempData["Error"] = "Ocorreu um erro ao abrir o produto para remoção.";
+                return RedirectToAction("Index");
+            }
         }
         // ===============================
         // POST: /Produto/Delete/5
@@ -181,109 +243,213 @@ namespace Estoque.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            if (Session["UsuarioLogado"] == null)
-                return RedirectToAction("Login", "Admin");
-
-            Produto produto = db.Produtos.Find(id);
-
-            // 🧹 (opcional) remove imagem do servidor
-            if (!string.IsNullOrEmpty(produto.ImagemUrl) && produto.ImagemUrl != "~/Content/images/default.jpeg")
+            try
             {
-                string caminho = Server.MapPath(produto.ImagemUrl);
+                if (Session["UsuarioLogado"] == null)
+                    return RedirectToAction("Login", "Admin");
 
-                if (System.IO.File.Exists(caminho))
+                Produto produto = db.Produtos.Find(id);
+
+                if (produto == null)
                 {
-                    System.IO.File.Delete(caminho);
+                    TempData["Error"] = "Produto não encontrado.";
+                    return RedirectToAction("Index");
                 }
+
+                // 🧹 (opcional) remove imagem do servidor
+                if (!string.IsNullOrEmpty(produto.ImagemUrl) && produto.ImagemUrl != "~/Content/images/default.jpeg")
+                {
+                    string caminho = Server.MapPath(produto.ImagemUrl);
+
+                    if (System.IO.File.Exists(caminho))
+                    {
+                        System.IO.File.Delete(caminho);
+                    }
+                }
+
+                db.Produtos.Remove(produto);
+                db.SaveChanges();
+
+                return RedirectToAction("Index");
             }
-
-            db.Produtos.Remove(produto);
-            db.SaveChanges();
-
-            return RedirectToAction("Index");
+            catch (Exception ex)
+            {
+                Trace.TraceError("Delete(POST) error: " + ex);
+                TempData["Error"] = "Ocorreu um erro ao remover o produto.";
+                return RedirectToAction("Index");
+            }
         }
 
         public ActionResult Entrada(int id)
         {
-            if (Session["UsuarioLogado"] == null)
-                return RedirectToAction("Login", "Admin");
+            try
+            {
+                if (Session["UsuarioLogado"] == null)
+                    return RedirectToAction("Login", "Admin");
 
-            var produto = db.Produtos.Find(id);
-            return View(produto);
+                var produto = db.Produtos.Find(id);
+                return View(produto);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Entrada(GET) error: " + ex);
+                TempData["Error"] = "Ocorreu um erro.";
+                return RedirectToAction("Index");
+            }
         }
 
         [HttpPost]
         public ActionResult Entrada(int id, int quantidade)
         {
-            var produto = db.Produtos.Find(id);
-
-            produto.Quantidade += quantidade;
-
-            db.Movimentacoes.Add(new Movimentacao
+            try
             {
-                ProdutoId = produto.Id,
-                NomeProduto = produto.Nome,
-                Tipo = "Entrada",
-                Quantidade = quantidade,
-                Data = DateTime.Now
-            });
+                if (Session["UsuarioLogado"] == null)
+                    return RedirectToAction("Login", "Admin");
 
-            db.SaveChanges();
+                var produto = db.Produtos.Find(id);
 
-            return RedirectToAction("Index");
-        }
+                if (produto == null)
+                {
+                    TempData["Error"] = "Produto não encontrado.";
+                    return RedirectToAction("Index");
+                }
 
-        public ActionResult Saida(int id)
-        {
-            if (Session["UsuarioLogado"] == null)
-                return RedirectToAction("Login", "Admin");
-
-            var produto = db.Produtos.Find(id);
-            return View(produto);
-        }
-
-        [HttpPost]
-        public ActionResult Saida(int id, int quantidade)
-        {
-            var produto = db.Produtos.Find(id);
-
-            if (produto.Quantidade >= quantidade)
-            {
-                produto.Quantidade -= quantidade;
+                produto.Quantidade += quantidade;
 
                 db.Movimentacoes.Add(new Movimentacao
                 {
                     ProdutoId = produto.Id,
                     NomeProduto = produto.Nome,
-                    Tipo = "Saida",
+                    Tipo = "Entrada",
                     Quantidade = quantidade,
                     Data = DateTime.Now
                 });
 
                 db.SaveChanges();
-            }
 
-            return RedirectToAction("Index");
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Entrada(POST) error: " + ex);
+                TempData["Error"] = "Ocorreu um erro ao registrar a entrada.";
+                return RedirectToAction("Index");
+            }
+        }
+
+        public ActionResult Saida(int id)
+        {
+            try
+            {
+                if (Session["UsuarioLogado"] == null)
+                    return RedirectToAction("Login", "Admin");
+
+                var produto = db.Produtos.Find(id);
+                return View(produto);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Saida(GET) error: " + ex);
+                TempData["Error"] = "Ocorreu um erro.";
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpPost]
+        public ActionResult Saida(int id, int quantidade)
+        {
+            try
+            {
+                if (Session["UsuarioLogado"] == null)
+                    return RedirectToAction("Login", "Admin");
+
+                var produto = db.Produtos.Find(id);
+
+                if (produto == null)
+                {
+                    TempData["Error"] = "Produto não encontrado.";
+                    return RedirectToAction("Index");
+                }
+
+                if (produto.Quantidade >= quantidade)
+                {
+                    produto.Quantidade -= quantidade;
+
+                    db.Movimentacoes.Add(new Movimentacao
+                    {
+                        ProdutoId = produto.Id,
+                        NomeProduto = produto.Nome,
+                        Tipo = "Saida",
+                        Quantidade = quantidade,
+                        Data = DateTime.Now
+                    });
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    TempData["Error"] = "Quantidade insuficiente em estoque.";
+                }
+
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Saida(POST) error: " + ex);
+                TempData["Error"] = "Ocorreu um erro ao registrar a saída.";
+                return RedirectToAction("Index");
+            }
         }
 
         public ActionResult HistoricoEntrada()
         {
-            var entradas = db.Movimentacoes
-                .Where(m => m.Tipo == "Entrada")
-                .ToList();
+            try
+            {
+                if (Session["UsuarioLogado"] == null)
+                    return RedirectToAction("Login", "Admin");
 
-            return View(entradas);
+                var entradas = db.Movimentacoes
+                    .Where(m => m.Tipo == "Entrada")
+                    .ToList();
+
+                return View(entradas);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("HistoricoEntrada error: " + ex);
+                TempData["Error"] = "Ocorreu um erro ao carregar o histórico.";
+                return RedirectToAction("Index");
+            }
         }
-       
 
-       
         public ActionResult HistoricoSaida()
         {
-            var saidas = db.Movimentacoes
-                .Where(m => m.Tipo == "Saida")
-                .ToList();
+            try
+            {
+                if (Session["UsuarioLogado"] == null)
+                    return RedirectToAction("Login", "Admin");
 
-            return View(saidas);
+                var saidas = db.Movimentacoes
+                    .Where(m => m.Tipo == "Saida")
+                    .ToList();
+
+                return View(saidas);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("HistoricoSaida error: " + ex);
+                TempData["Error"] = "Ocorreu um erro ao carregar o histórico.";
+                return RedirectToAction("Index");
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

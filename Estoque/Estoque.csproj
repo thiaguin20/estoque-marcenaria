@@ -130,9 +130,11 @@
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ProdutoController.cs" />
+    <Compile Include="Controllers\UsuariosController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\SecurityHelper.cs" />
     <Compile Include="Migrations\202603252250092_Inicial.cs" />
     <Compile Include="Migrations\202603252250092_Inicial.Designer.cs">
       <DependentUpon>202603252250092_Inicial.cs</DependentUpon>
@@ -145,10 +147,17 @@
     <Compile Include="Migrations\202603312037277_Movimentacao.Designer.cs">
       <DependentUpon>202603312037277_Movimentacao.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202604292158137_Usuarios_create.cs" />
+    <Compile Include="Migrations\202604292158137_Usuarios_create.Designer.cs">
+      <DependentUpon>202604292158137_Usuarios_create.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\EstoqueContexto.cs" />
     <Compile Include="Models\Movimentacao.cs" />
     <Compile Include="Models\Produto.cs" />
+    <Compile Include="Models\Usuario.cs" />
+    <Compile Include="Models\ViewModels\CadastroUsuarioViewModel.cs" />
+    <Compile Include="Models\ViewModels\LoginViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -203,6 +212,7 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Admin\Cadastro.cshtml" />
     <Content Include="Views\Admin\Login.cshtml" />
     <Content Include="Views\Produto\Index.cshtml" />
     <Content Include="Views\Produto\Create.cshtml" />
@@ -211,6 +221,8 @@
     <Content Include="Views\Produto\Saida.cshtml" />
     <Content Include="Views\Produto\HistoricoEntrada.cshtml" />
     <Content Include="Views\Produto\HistoricoSaida.cshtml" />
+    <Content Include="Views\Produto\Edit.cshtml" />
+    <Content Include="Views\Usuarios\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -251,6 +263,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202603312037277_Movimentacao.resx">
       <DependentUpon>202603312037277_Movimentacao.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202604292158137_Usuarios_create.resx">
+      <DependentUpon>202604292158137_Usuarios_create.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

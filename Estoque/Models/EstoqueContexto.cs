@@ -9,6 +9,7 @@ namespace Estoque.Models
 
         public DbSet<Movimentacao> Movimentacoes { get; set; }
 
+        public DbSet<Usuario> Usuarios { get; set; }
 
     }
 }

@@ -150,6 +150,18 @@
             border-top: 1px solid var(--line);
         }
 
+        .settings-menu summary {
+            list-style: none;
+        }
+
+            .settings-menu summary::-webkit-details-marker {
+                display: none;
+            }
+
+        .settings-panel {
+            margin-top: 6px;
+        }
+
         /* MAIN */
         .main {
             display: flex;
@@ -742,6 +754,13 @@
                     <i class="bi bi-plus-circle"></i> Novo Produto
                 </a>
 
+                @if (Session["EhAdminPrincipal"] != null && (bool)Session["EhAdminPrincipal"])
+                {
+                    <a href="@Url.Action("Index", "Usuarios")" class="nav-item">
+                        <i class="bi bi-people"></i> Usuarios
+                    </a>
+                }
+
                 <div class="nav-label" style="margin-top:12px;">Movimentações</div>
 
                 <a href="@Url.Action("HistoricoEntrada", "Produto")" class="nav-item">
@@ -754,9 +773,16 @@
             </nav>
 
             <div class="sidebar-foot">
-                <a href="#" class="nav-item" style="font-size:12px;">
-                    <i class="bi bi-gear"></i> Configurações
-                </a>
+                <details class="settings-menu">
+                    <summary class="nav-item" style="font-size:12px; cursor:pointer;">
+                        <i class="bi bi-gear"></i> Configurações
+                    </summary>
+                    <div class="settings-panel">
+                        <a href="@Url.Action("Logout", "Admin")" class="nav-item" style="font-size:12px;">
+                            <i class="bi bi-box-arrow-right"></i> Sair
+                        </a>
+                    </div>
+                </details>
             </div>
         </aside>
 

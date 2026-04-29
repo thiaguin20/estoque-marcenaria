@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Estoque.Models
 {
@@ -7,13 +7,10 @@ namespace Estoque.Models
         [Key]
         public int Id { get; set; }
 
-        
         public string Nome { get; set; }
 
-        
         public string Descricao { get; set; }
 
-        
         public decimal Preco { get; set; }
 
         public string ImagemUrl { get; set; }

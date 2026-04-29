@@ -1,7 +1,7 @@
 ﻿@model Estoque.Models.Produto
 
 @{
-    ViewBag.Title = "Novo Produto";
+    ViewBag.Title = "Editar Produto";
     Layout = null;
 }
 
@@ -14,7 +14,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* (mantive o mesmo CSS do arquivo original para consistência visual) */
         *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
@@ -467,7 +466,7 @@
                 <a href="@Url.Action("Index", "Produto")" class="nav-item">
                     <i class="bi bi-boxes"></i> Estoque
                 </a>
-                <a href="@Url.Action("Create", "Produto")" class="nav-item active">
+                <a href="@Url.Action("Create", "Produto")" class="nav-item">
                     <i class="bi bi-plus-circle"></i> Novo Produto
                 </a>
             </nav>
@@ -492,7 +491,7 @@
             <!-- TOPBAR -->
             <div class="topbar">
                 <span class="topbar-title">
-                    Cadastro de produto
+                    Editando produto
                 </span>
                 <a href="@Url.Action("Index", "Produto")" class="btn-back">
                     <i class="bi bi-arrow-left"></i> Voltar ao estoque
@@ -503,18 +502,18 @@
             <div class="content">
 
                 <div class="hero">
-                    <div class="hero-eyebrow">Novo Produto</div>
-                    <h1>Cadastrar <span>Produto</span></h1>
+                    <div class="hero-eyebrow">Editar</div>
+                    <h1>Atualizar <span>Produto</span></h1>
                 </div>
 
                 <div class="form-card">
                     <div class="form-card-head">
-                        <i class="bi bi-plus-circle"></i>
-                        Preencha os dados do novo produto
+                        <i class="bi bi-pencil"></i>
+                        Informações do produto
                     </div>
 
                     <div class="form-body">
-                        @using (Html.BeginForm("Create", "Produto", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        @using (Html.BeginForm("Edit", "Produto", FormMethod.Post, new { enctype = "multipart/form-data" }))
                         {
                             @Html.AntiForgeryToken()
 
@@ -549,24 +548,35 @@
                                         <label>Imagem do Produto</label>
                                     </div>
                                     <div class="img-box">
+                                        @if (!string.IsNullOrEmpty(Model.ImagemUrl))
+                                        {
+                                            <div style="text-align:center;">
+                                                <div class="img-lbl">Imagem atual</div>
+                                                <img src="@Url.Content(Model.ImagemUrl)" alt="Imagem atual" />
+                                            </div>
+                                        }
                                         <div class="field" style="width:100%;">
                                             <input type="file" name="fotoUpload" />
                                         </div>
                                         <p class="img-hint">
-                                            Adicione uma imagem do produto.
+                                            Envie uma nova imagem para substituir a atual.
                                         </p>
                                     </div>
                                 </div>
 
                             </div>
 
+                            @* Hidden fields dentro do form para garantir binding no POST *@
+                            @Html.HiddenFor(m => m.Id)
+                            @Html.HiddenFor(m => m.ImagemUrl)
+
                             <hr class="form-divider" />
 
                             <div class="form-actions">
                                 <a href="@Url.Action("Index", "Produto")" class="btn-cancel">Cancelar</a>
                                 <button type="submit" class="btn-submit">
-                                    <i class="bi bi-floppy"></i>
-                                    Salvar Produto
+                                    <i class="bi bi-check-lg"></i>
+                                    Atualizar Produto
                                 </button>
                             </div>
                         }

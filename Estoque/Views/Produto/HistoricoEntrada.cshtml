@@ -39,12 +39,38 @@
             color: #4ade80;
             font-weight: bold;
         }
+
+        .top-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .btn-back {
+            background: #1c1c1c;
+            color: #9a9690;
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 8px;
+            padding: 10px 14px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+            .btn-back:hover {
+                color: white;
+            }
     </style>
    
 </head>
 <body>
 
-    <h2>📥 Histórico de Entradas</h2>
+    <div class="top-actions">
+        <h2>Histórico de Entradas</h2>
+        <a href="@Url.Action("Index", "Produto")" class="btn-back">Voltar ao estoque</a>
+    </div>
 
     <table>
         <tr>
