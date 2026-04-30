@@ -37,6 +37,8 @@ namespace Estoque.Controllers
                     return View(model);
                 }
 
+                GarantirTabelaUsuarios();
+
                 var adminEmail = ConfigurationManager.AppSettings["AdminEmail"];
                 var storedHash = ConfigurationManager.AppSettings["AdminPasswordHash"];
 
@@ -105,10 +107,12 @@ namespace Estoque.Controllers
 
                 var email = model.Email.Trim().ToLower();
 
+                GarantirTabelaUsuarios();
+
                 if (db.Usuarios.Any(u => u.Email == email))
                 {
                     ViewBag.Erro = "Ja existe um usuario cadastrado com este email.";
-                    return View();
+                    return View(model);
                 }
 
                 var usuario = new Usuario
@@ -133,6 +137,23 @@ namespace Estoque.Controllers
                 ViewBag.Erro = "Ocorreu um erro ao cadastrar o usuario.";
                 return View(model);
             }
+        }
+
+        private void GarantirTabelaUsuarios()
+        {
+            db.Database.ExecuteSqlCommand(@"
+IF OBJECT_ID('dbo.Usuarios', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Usuarios
+    (
+        Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+        Nome NVARCHAR(100) NOT NULL,
+        Email NVARCHAR(150) NOT NULL,
+        SenhaHash NVARCHAR(64) NOT NULL,
+        PodeAcessarAdmin BIT NOT NULL,
+        DataCadastro DATETIME NOT NULL
+    )
+END");
         }
 
         public ActionResult Logout()

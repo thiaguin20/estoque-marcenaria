@@ -19,6 +19,8 @@ namespace Estoque.Controllers
                     return RedirectToAction("Index", "Produto");
                 }
 
+                GarantirTabelaUsuarios();
+
                 var usuarios = db.Usuarios
                     .OrderBy(u => u.PodeAcessarAdmin)
                     .ThenByDescending(u => u.DataCadastro)
@@ -45,6 +47,8 @@ namespace Estoque.Controllers
 
             try
             {
+                GarantirTabelaUsuarios();
+
                 var usuario = db.Usuarios.Find(id);
 
                 if (usuario == null)
@@ -85,6 +89,23 @@ namespace Estoque.Controllers
             }
 
             base.Dispose(disposing);
+        }
+
+        private void GarantirTabelaUsuarios()
+        {
+            db.Database.ExecuteSqlCommand(@"
+IF OBJECT_ID('dbo.Usuarios', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Usuarios
+    (
+        Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+        Nome NVARCHAR(100) NOT NULL,
+        Email NVARCHAR(150) NOT NULL,
+        SenhaHash NVARCHAR(64) NOT NULL,
+        PodeAcessarAdmin BIT NOT NULL,
+        DataCadastro DATETIME NOT NULL
+    )
+END");
         }
     }
 }
